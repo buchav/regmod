@@ -1,0 +1,82 @@
+---
+title: "Regression Models Course Project"
+author: "Victor Bucha"
+date: "19th of October"
+output: html_document
+---
+# Task
+You work for Motor Trend, a magazine about the automobile industry. Looking at a data set of a collection of cars, they are interested in exploring the relationship between a set of variables and miles per gallon (MPG) (outcome). They are particularly interested in the following two questions:
+
+Q1: Is an automatic or manual transmission better for MPG  
+Q2: Quantify the MPG difference between automatic and manual transmissions
+
+Your report must be:
+Written as a PDF printout of a compiled (using knitr) R markdown document.
+Brief. Roughly the equivalent of 2 pages or less for the main text. Supporting figures in an appendix can be included up to 5 total pages including the 2 for the main report. The appendix can only include figures.
+Include a first paragraph executive summary.
+
+#Executive summary
+
+##Is an automatic or manual transmission better for MPG?
+
+##Quantify the MPG difference between automatic and manual transmissions
+
+#Appendix
+
+
+```{r, Q1}
+data(mtcars) #load data
+library(ggplot2)
+
+mtcars$am<-factor(mtcars$am) # convert mtcars$am to factor
+levels(mtcars$am)<-factor(c("auto","manual")) # rename factor levels
+
+auto_tr<-mtcars[mtcars$am=="auto",]# select cars with auto transmission
+manual_tr<-mtcars[mtcars$am=="manual",]# select cars with auto transmission
+
+#compute mean mpg value for car with auto trasmission
+mean_mpg_auto<-mean(auto_tr$mpg) 
+#compute mean mpg value for car with manual trasmission
+mean_mpg_manual<-mean(manual_tr$mpg) 
+
+#draw plot of MPG vs Transmission
+ggplot(mtcars,aes(x=am,y=mpg,shape=am))+
+        geom_point(aes(colour=am),size=4)+
+        geom_point(colour="grey90", size = 1.5)+
+        geom_hline(aes(yintercept=mean_mpg_auto,color="auto"),size=1.1,linetype=2)+
+        geom_hline(aes(yintercept=mean_mpg_manual,color="manual"),size=1.1,linetype=2)+
+        labs(title="Cmparision MPG for auto and manual transmission", 
+             x="Transimssion",y="MPG")+
+        annotate("text",label=paste(paste(rep(" ",24),collapse = ""),
+                                    paste("Mean:",format(mean_mpg_auto,digits=4))),
+                                    y=mean_mpg_auto+0.8,x="auto")+
+        annotate("text",label=paste(paste(rep(" ",24),collapse = ""),
+                                    paste("Mean:",format(mean_mpg_manual,digits=4))),
+                                    y=mean_mpg_manual+0.8,x="manual")+
+        scale_color_discrete("Transmission")+scale_shape_discrete("Transmission")
+```
+
+Cars with automatic transmission  seems to provide less MPG. Let us check these hypotheses
+with t-test as follows H0: mu=0, H1: mu<0
+
+```{r, Q1-t-test}
+t.test(auto_tr$mpg,manual_tr$mpg,alternative="less")
+```
+We reject Null hypothesis and accept alternative. It means cars with automatic transmission has less
+average MPG than cars with manual transmission with 95% confidence.
+
+```{r, Q1-additional}
+
+ggplot(mtcars,aes(y=mpg,x=hp))+
+        geom_point(aes(colour=factor(am)),size=8,alpha=0.7)+
+        geom_point(colour="grey90",size=5,alpha=0.6)
+
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+
