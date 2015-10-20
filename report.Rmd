@@ -1,15 +1,9 @@
 ---
 title: "Regression Models Course Project"
 author: "Victor Bucha"
-date: "19th of October"
+date: "20th of October"
 output: html_document
 ---
-# Samples
-https://rpubs.com/stephenmoore56/56053
-http://rstudio-pubs-static.s3.amazonaws.com/20260_6b6ddcddd3ba4432804990538f00f179.html
-http://rstudio-pubs-static.s3.amazonaws.com/20260_6b6ddcddd3ba4432804990538f00f179.html
-http://stackoverflow.com/questions/12012746/bestglm-alternatives-for-dataset-with-many-variables
-
 # Task
 You work for Motor Trend, a magazine about the automobile industry. Looking at a data set of a collection of cars, they are interested in exploring the relationship between a set of variables and miles per gallon (MPG) (outcome). They are particularly interested in the following two questions:
 
@@ -116,17 +110,31 @@ ggplot(mtcars,aes(y=mpg,x=wt))+
 
 
 ###Selection of the best model
-Let us select the best model using anova to test the models against one another
+Let us select the best model by using anova to test the models against one another.
 ```{r, Best model selection}
 anova(m1,m2,m3)
 ```
-As we can see, second model lm(mpg~wt+am) is better than first one lm(mpg~am) because anova test show positive difference of RSSs= 442.58 and P-value for F statistic is small= 7.717e-09.
+As we can see, second model: m2=lm(mpg~wt+am) is better than the first one: m1=lm(mpg~am) because anova test show positive difference of RSSs= 442.58 and P-value for F statistic is small= 7.717e-09.
 
-However third model lm(mpg~wt*am) with interaction term is better than second one since third model further reduce sum of squared differences and p-value is still low=0.001017.
+However third model m3=lm(mpg~wt*am) with interaction term is better than second one m2=lm(mpg~wt+am) since third model further reduce sum of squared differences and p-value is still low=0.001017.
 
-So the third model lm(mpg~wt*am) is the best one.
+So the third model m3=lm(mpg~wt*am) is selected to be the best one.
 
 ###Residuals and Diagnostics
+Let us look to residuals of the model m3=lm(mpg~wt*am) that we selected as the best one.
+
+```{r, Risidual for best model}
+par(mfrow = c(2, 2))
+plot(m3)
+```
+
+From the above plot, we can make following observation:  
+
+* The points in the Risidual vs. fitted plot seem to have linear negative correlation which may violate independence condition.  
+* Normal Q-Q plot has points that do not fall on the line indicating that risiduals might be not normally distributed  
+* The Scale-Location plot shows points in constan band, indicating constant variance  
+
+
 
 #Conclusion
 
