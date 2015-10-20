@@ -16,6 +16,11 @@ Brief. Roughly the equivalent of 2 pages or less for the main text. Supporting f
 Include a first paragraph executive summary.
 
 #Executive summary
+In this paper we explored the relationship between miles-per-gallon (MPG) and two other variables. First variable is a trasmission type and second one is a car weight. The last variable has the highest correlation with MPG. 
+
+At exploatory and inference section we have shown that cars with manual transmission are better in terms of MPG. 
+
+Later we studied relationship of MPG and other variables by building several regression models (MPG ~ Weight+Transmission) and (MPG ~ Weight*Transmission). Although the best linear regression model allows to predict ~83% of MPG variability, we can not use it to judge what transmission is better in respect to weight and transmission type.The main reason is that mtcars dataset have very small overlap between the trasmission groups for any given weight. 
 
 #Exploatory analysis 
 At first, let us create boxplot showing the distribution of mpg for different types of trasmission. It looks like cars with automatic transmisson tend to have lower mpg.
@@ -134,12 +139,20 @@ From the above plot, we can make following observation:
 * Normal Q-Q plot has points that do not fall on the line indicating that risiduals might be not normally distributed  
 * The Scale-Location plot shows points in constan band, indicating constant variance  
 
-
-
 #Conclusion
+Although our third model was selected as the best in terms of MPG prediction it can be controversial in making statement what trasmission is better. Our regression model says that automatic transmission is better in terms of MPG for cars with a weight greater than 3 tones. For cars with weight less than 3 tons automatic tranmission is worse. However, we can not rely on above statements because of following reasons:
 
-###Is an automatic or manual transmission better for MPG?
+At first, weight variable [wt] is highly related to transmission type [am]. Take a look at bellow plot. Almost all cars that have automatic transmission have the weight greather than 3 tons. Also in this setting, there is small overlap between the trasmission groups for any given weight. That means there isn't a lot of evidence to compare the groups. Above analysis of risiduals supports these observations. 
 
-###Quantify the MPG difference between automatic and manual transmissions
-
-#Appendix
+```{r, Model interaction plot 2, echo=FALSE}
+ggplot(mtcars,aes(y=mpg,x=wt))+
+        geom_point(aes(colour=factor(am)),size=8,alpha=0.7)+
+        geom_point(colour="grey90",size=5,alpha=0.6)+
+        geom_abline(intercept=m3$coefficients[1],slope=m3$coefficients[2],
+                    aes(colour="0"),linetype=1,size=2)+
+        geom_abline(intercept=m3$coefficients[1]+m3$coefficients[3],
+                    slope=m3$coefficients[2]+m3$coefficients[4],
+                    aes(colour="1"),linetype=2,size=2)+
+        labs(title="lm(mpg~wt*factor(am),mtcars)",x="Weight",y="MPG")+
+        scale_color_discrete("Transmission",labels=c("Auto", "Manual"))
+```
