@@ -1,31 +1,22 @@
 ---
 title: "Regression Models Course Project"
 author: "Victor Bucha"
-date: "20th of October"
-output: html_document
+date: "21th of October"
+output: pdf_document
 ---
-# Task
-You work for Motor Trend, a magazine about the automobile industry. Looking at a data set of a collection of cars, they are interested in exploring the relationship between a set of variables and miles per gallon (MPG) (outcome). They are particularly interested in the following two questions:
-
-Q1: Is an automatic or manual transmission better for MPG  
-Q2: Quantify the MPG difference between automatic and manual transmissions
-
-Your report must be:
-Written as a PDF printout of a compiled (using knitr) R markdown document.
-Brief. Roughly the equivalent of 2 pages or less for the main text. Supporting figures in an appendix can be included up to 5 total pages including the 2 for the main report. The appendix can only include figures.
-Include a first paragraph executive summary.
 
 #Executive summary
 In this paper we explored the relationship between miles-per-gallon (MPG) and two other variables. First variable is a trasmission type and second one is a car weight. The last variable has the highest correlation with MPG. 
 
 At exploatory and inference section we have shown that cars with manual transmission are better in terms of MPG. 
 
-Later we studied relationship of MPG and other variables by building several regression models (MPG ~ Weight+Transmission) and (MPG ~ Weight*Transmission). Although the best linear regression model allows to predict ~83% of MPG variability, we can not use it to judge what transmission is better in respect to weight and transmission type.The main reason is that mtcars dataset have very small overlap between the trasmission groups for any given weight. 
+Later we studied relationship of MPG and other variables by building several regression models (MPG ~ Weight+Transmission) and (MPG ~ Weight*Transmission). 
+
+Although the best linear regression model allows to predict ~83% of MPG variability, we can not use it to judge what transmission is better in respect to weight and transmission type.The main reason is that mtcars dataset have very small overlap between the trasmission groups for any given weight. 
 
 #Exploatory analysis 
 At first, let us create boxplot showing the distribution of mpg for different types of trasmission. It looks like cars with automatic transmisson tend to have lower mpg.
-
-```{r, Exploratory analysis}
+```{r, Exploratory analysis, fig.width=6, fig.height=3.2}
 data(mtcars) #load data
 library(ggplot2)
 p <- ggplot(mtcars, aes(factor(am), mpg))
@@ -36,27 +27,26 @@ p + geom_boxplot(aes(fill=factor(am)))+
 
 ## Inference
 Assuming the data has a normal distribution let us make t-test in order to show that automatic transmission has lower mean mpg value than cars with manual transmission. We will test following hypotheses H0: mu=0, H1: mu<0.
-
 ```{r, T-test}
 t.test(subset(mtcars,am==0,mpg),subset(mtcars,am==1,mpg),alternative="less")
 ```
 P-value is small and both confidence interval values are negative. So we reject null hypothesis and accept alternative. It means cars with automatic transmission has less average MPG than cars with manual transmission with 95% confidence.
 
 #Regression analysis
-In this section, we start to build several regression models. We started from simple linear regression model with one regressor. Then proceed with multivariable regression model by addding the variable that has the strongest correlation with mpg. Finnaly, 
+In this section, we start to build several regression models. We started from simple linear regression model with one regressor. Then proceed with multivariable regression model by addding the variable that has the strongest correlation with mpg. Finnaly, we build multivariable regression model that have the best prediction strength.
 
-###Base regression model
+##Base regression model
 Let us build simple linear reggression model with [mpg] as outcome and one regressor as [am].
 ```{r, Base regression model}
 m1<-lm(mpg~am,mtcars)
 summary(m1)
 ```
-#### Coefficients interpretation
+### Coefficients interpretation
 * Beta0/intercept is equal to 17.147. It corresponds to the mean mpg value for cars with automatic transmission
 * Beta1 is equal to 7.245. It increases of MPG for cars with manual transmission.
 * Adjusted R-squared is equal 0.3385. So ~34% of mpg variability can be explained by transmission type. 
 
-### Multivariable regression 
+## Multivariable regression 
 In previous section, we saw that the base regression model is very weak in prediction. Let us find the predictor whose correlation with MPG is the highest.
 
 ```{r, Compute correlation}
@@ -69,13 +59,13 @@ Weight [wt] has the highest negative correlation -0.8676594 with MPG. Let us sel
 m2<-lm(mpg~wt+factor(am),mtcars)
 summary(m2)
 ```
-#### Coefficients interpretation
+### Coefficients interpretation
 * Adjusted R-squared grows more than two times. With a new model we can explain ~75% of MPG variability. 
 * It's interesting that [am] slope coefficient beta2 changed the sign and p-value become extremely large 0.988. That means beta2 is not statistically important in this model.
 
-Transmission type [am] is a binary variable taking 0 for auto and 1 for manual transmissions. Above model fits parallel lines for the two levels of factor variable [am]. Since [am] slope coefficient beta2 is close to zero (-0.02362) it adds a litle to intercept of the second parallel line. So they are almost identical.  Bellow figure show it in more details.
+Transmission type [am] is a binary variable taking 0 for auto and 1 for manual transmissions. Above model fits parallel lines for the two levels of factor variable [am]. Since [am] slope coefficient beta2 is close to zero (-0.02362) it adds a litle to intercept of the second parallel line. So two lines are almost identical. Bellow figure show it in more details.
 
-```{r, Model plot, echo=FALSE}
+```{r, Model plot, echo=FALSE, fig.width=6, fig.height=3.2}
 ggplot(mtcars,aes(y=mpg,x=wt))+
         geom_point(aes(colour=factor(am)),size=8,alpha=0.7)+
         geom_point(colour="grey90",size=5,alpha=0.6)+
@@ -87,14 +77,13 @@ ggplot(mtcars,aes(y=mpg,x=wt))+
         scale_color_discrete("Transmission",labels=c("Auto", "Manual"))
 ```
 
-### Multivariable regression with interaction
+## Multivariable regression with interaction
 Let us make interaction with variable [am] and [wt] in order to improve our model. 
-
 ```{r, Multivariable regression model 2}
 m3<-lm(mpg~wt*factor(am),mtcars)
 summary(m3)
 ```
-#### Coefficients interpretation
+### Coefficients interpretation
 * Adjusted R-squared grows up to 0.833. With a new model we can explain ~83% of MPG variability.
 * P-values are small. So all coefficients are statisticaly important
 
@@ -113,8 +102,7 @@ ggplot(mtcars,aes(y=mpg,x=wt))+
         scale_color_discrete("Transmission",labels=c("Auto", "Manual"))
 ```
 
-
-###Selection of the best model
+##Selection of the best model
 Let us select the best model by using anova to test the models against one another.
 ```{r, Best model selection}
 anova(m1,m2,m3)
@@ -125,14 +113,12 @@ However third model m3=lm(mpg~wt*am) with interaction term is better than second
 
 So the third model m3=lm(mpg~wt*am) is selected to be the best one.
 
-###Residuals and Diagnostics
+##Residuals and Diagnostics
 Let us look to residuals of the model m3=lm(mpg~wt*am) that we selected as the best one.
-
 ```{r, Risidual for best model}
 par(mfrow = c(2, 2))
 plot(m3)
 ```
-
 From the above plot, we can make following observation:  
 
 * The points in the Risidual vs. fitted plot seem to have linear negative correlation which may violate independence condition.  
